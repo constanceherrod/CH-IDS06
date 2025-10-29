@@ -65,6 +65,7 @@ _Write your comments about image 4 below_
 
 ```{r load-data-staff, message=FALSE, eval=TRUE}
 staff <- read_csv("data/instructional-staff.csv")
+view(staff)
 ```
 
 
@@ -86,12 +87,15 @@ How many observations are there in the data set?
 ```{r pivoting}
 ## Uncomment and complete the following code
 
-#staff_long <- ___ %>%
-#  ___(
-#    cols = ____, 
-#    names_to = "_____",
-#    values_to = "percent"
-#    )
+staff_long <- staff %>%
+  pivot_longer(
+    cols = c("1975", "1989", "1993", "1995", "1999", "2001", 
+             "2003", "2005", "2007", "2009" ,"2011"), 
+    names_to = "year",
+    values_to = "percent"
+  )
+
+view(staff_long)
 
 ```
 
@@ -99,8 +103,11 @@ How many observations are there in the data set?
 ## Exercise 3
 
 ```{r dot-plot}
-# Write your code for Exercise 3 here
-
+ggplot(data = staff_long,
+       mapping = aes(x = year, 
+                     y = percent, 
+                     colour = faculty_type)) +
+  geom_point()
 
 
 ```
@@ -108,7 +115,11 @@ How many observations are there in the data set?
 ## Exercise 4
 
 ```{r bad-line-plot}
-# Write your code for Exercise 4 here
+ggplot(data = staff_long,
+       mapping = aes(x = year, 
+                     y = percent, 
+                     colour = faculty_type)) +
+  geom_line()
 
 
 
@@ -119,14 +130,17 @@ How many observations are there in the data set?
 ```{r mutate-year}
 ## Uncomment and complete the following code
 
-#staff_long <- staff_long %>%
-#  mutate(year = ______(year))
+staff_long <- staff_long %>%
+  mutate(year = as.numeric(year))
 ```
 
 
 ```{r working-line-plot}
-# Write your code for Exercise 5 here
-
+ggplot(data = staff_long,
+       mapping = aes(x = year, 
+                     y = percent, 
+                     colour = faculty_type)) +
+  geom_line()
 
 
 ```
@@ -134,7 +148,18 @@ How many observations are there in the data set?
 ## Exercise 6
 
 ```{r better-line-plot}
-# Write your code for Exercise 6 here
+ggplot(data = staff_long,
+       mapping = aes(x = year, 
+                     y = percent, 
+                     colour = faculty_type)) +
+  geom_line() +
+  labs(
+    title = "Instructional staff employment trends, 1975–2011",
+    x = "Year",
+    y = "Percentage",
+    colour = "Faculty Type",
+    caption = "Data source: American Association of University Professors"
+  )
 
 
 
@@ -154,7 +179,32 @@ _Write below your ideas for adapting the line plot_
 ## Exercise 8
 
 ```{r implement-Ex7}
-# Write your code for Exercise 8 here
+staff_long <- staff_long %>%
+  mutate(part_time = 
+           case_when(
+             faculty_type == "Part-Time Faculty" ~ "Part-Time Faculty",
+             TRUE ~ "Other Faculty Types"))
+
+ggplot(data = staff_long,
+       mapping = aes(x = year, 
+                     y = percent, 
+                     group = faculty_type,  
+                        # to draw seporate lines per faculty type
+                     colour = part_time  
+                        # to colour the lines using the new part_time variable
+       ))+
+  geom_line() +
+  scale_colour_manual(values = c("gray", "red")) +
+  theme_minimal() +
+  labs(
+    title = "Instructional staff employment trends, 1975–2011",
+    x = "Year",
+    y = "Percentage",
+    colour = "",
+    caption = "Data source: American Association of University Professors"
+  ) +
+  coord_cartesian(ylim = c(0, 45)) + 
+  theme(legend.position = "bottom")
 
 
 
